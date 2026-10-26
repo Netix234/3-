@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D Конструктор сайтов</title>
+<style>
+:root{--bg:#0b0d17;--p:#141828;--p2:#1c2136;--b:#2a3150;--t:#e8ebf7;--m:#8a93b8;--a:#7c5cff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef0f8;--p:#fff;--p2:#f3f4fb;--b:#d9dcec;--t:#1a1d33;--m:#666d92}}
+:root[data-theme="dark"]{--bg:#0b0d17;--p:#141828;--p2:#1c2136;--b:#2a3150;--t:#e8ebf7;--m:#8a93b8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:var(--bg);color:var(--t);font:14px system-ui,sans-serif;overflow:hidden}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:var(--t);background:var(--p2);border:1px solid var(--b);border-radius:8px;padding:7px 10px}
+button{cursor:pointer}button:hover{border-color:var(--a)}
+.pri{background:linear-gradient(135deg,#7c5cff,#22d3ee);border:0;color:#fff;font-weight:700}
+#top{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--p);border-bottom:1px solid var(--b);flex-wrap:wrap}
+.brand{font-weight:800;background:linear-gradient(90deg,#7c5cff,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+#tabs{display:flex;gap:4px;overflow-x:auto;max-width:40vw}#tabs button{white-space:nowrap}
+.on{background:var(--a)!important;border-color:var(--a)!important;color:#fff}
+.sp{flex:1}.seg{display:flex}.seg button:first-child{border-radius:8px 0 0 8px}.seg button:last-child{border-radius:0 8px 8px 0}
+main{flex:1;display:flex;min-height:0}
+aside{background:var(--p);padding:10px;overflow:auto}
+#pal{width:150px;display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start;border-right:1px solid var(--b)}
+#pal button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;font-size:12px}#pal b{font-size:20px}
+#pr{width:240px;border-left:1px solid var(--b)}
+#pr label{display:block;margin:8px 0;color:var(--m);font-size:12px}#pr label input,#pr label select,#pr label textarea{display:block;width:100%;margin-top:3px;box-sizing:border-box}
+#pr input[type=color]{height:34px;padding:2px}#pr textarea{min-height:64px}
+#pr h3{margin:12px 0 4px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.ck{display:flex!important;gap:8px;align-items:center}.ck input{width:auto!important;margin:0!important}
+#wrap{flex:1;overflow:auto;padding:20px;display:flex;justify-content:center;align-items:flex-start;background:radial-gradient(circle at 1px 1px,var(--b) 1px,transparent 0) 0 0/22px 22px}
+#st{overflow:hidden;box-shadow:0 20px 60px #0008;flex:none}#st.m{border-radius:32px;outline:8px solid #000}
+#cv{position:relative;overflow:hidden;transform-origin:0 0}
+#cv .e{cursor:move;touch-action:none}#cv .e *{pointer-events:none}#cv nav{position:absolute;pointer-events:none}#cv .fx{position:absolute}
+.sel{outline:2px solid var(--a);outline-offset:2px}
+.rz{position:absolute;right:-9px;bottom:-9px;width:16px;height:16px;background:var(--a);border-radius:4px;cursor:nwse-resize;pointer-events:auto!important}
+#md{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:99;padding:16px}
+#md>div{background:var(--p);border:1px solid var(--b);border-radius:14px;width:min(1000px,100%);height:min(82vh,100%);display:flex;flex-direction:column;padding:12px;gap:8px}
+#md textarea,#md iframe{flex:1;width:100%;box-sizing:border-box;border-radius:8px;font:12px monospace;background:#fff;border:1px solid var(--b)}#md textarea{background:var(--p2)}
+@media(max-width:900px){main{flex-direction:column}#pal{width:auto;display:flex;overflow-x:auto;border:0;border-bottom:1px solid var(--b)}#pal button{min-width:70px}#pr{width:auto;max-height:36%;border:0;border-top:1px solid var(--b)}#tabs{max-width:100%}}
+</style></head><body>
+<header id="top">
+<b class="brand">◆ 3D Студия</b><div id="tabs"></div><button data-a="addpage" title="Новая страница">＋ Страница</button><span class="sp"></span>
+<div class="seg"><button data-a="dev" data-v="d" class="on">🖥 ПК</button><button data-a="dev" data-v="m">📱 Телефон</button></div>
+<button data-a="logo">🖼 Лого</button><button class="pri" data-a="export">{ } Получить код</button>
+</header>
+<main><aside id="pal"></aside><section id="wrap"><div id="st"><div id="cv"></div></div></section><aside id="pr"></aside></main>
+<div id="md" hidden><div><div class="row" style="margin:0"><button data-a="view" data-v="c" class="on">Код</button><button data-a="view" data-v="p">Превью</button><span class="sp"></span><button class="pri" data-a="copy" id="cp">Копировать код</button><button data-a="close">✕</button></div><textarea id="code" readonly></textarea><iframe id="ifr" hidden></iframe></div></div>
+<input type="file" id="fi" accept="image/*" hidden>
+<script src="app.js"></script>
+</body></html>
