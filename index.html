@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <title>SoundVibe — Feel the music</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">S</span><span>Sound<span class="brand-light">Vibe</span></span></a>
+    <nav class="main-nav">
+      <a href="#discover">Головна</a><a href="#tracks">Треки</a><a href="#albums">Альбоми</a><a href="#posts">Новини</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" id="search-focus" aria-label="Пошук">⌕</button>
+      <button class="mobile-menu" id="mobile-menu">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="discover">
+      <div class="hero-copy">
+        <h1>Відчуй<br><span>кожен біт.</span></h1>
+        <p>Музика, яка задає настрій. Відкривай нові треки, знаходь улюблені звучання та слухай без зайвого.</p>
+        <div class="hero-buttons"><a class="btn btn-primary" href="#tracks">Слухати музику <span>↗</span></a><a class="btn btn-ghost" href="#albums">Переглянути альбоми</a></div>
+      </div>
+      <div class="hero-art">
+        <div class="hero-orbit orbit-a"></div><div class="hero-orbit orbit-b"></div>
+        <div class="hero-disc"><div class="disc-inner"><div class="disc-center">SV</div></div></div>
+        <div class="floating-tag tag-top">SOUND<br><b id="sound-status">OFF.</b></div>
+        <div class="floating-tag tag-bottom"><span class="equalizer"><i></i><i></i><i></i><i></i><i></i></span> FEEL THE VIBE</div>
+      </div>
+    </section>
+
+    <section class="section" id="tracks">
+      <div class="section-head"><div><h2>У центрі уваги<span>.</span></h2></div><div class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Знайти трек або виконавця..."></div></div>
+      <div class="filter-row"><button class="filter-chip active" data-filter="all">Усі треки</button><button class="filter-chip" data-filter="new">Новинки</button><button class="filter-chip" data-filter="popular">Популярні</button></div>
+      <div class="track-grid" id="track-grid"><div class="empty-state">Завантажуємо музику...</div></div>
+    </section>
+
+    <section class="section albums-section" id="albums">
+      <div class="section-head"><div><div class="eyebrow">COLLECTIONS</div><h2>Альбоми<span>.</span></h2></div></div>
+      <div class="album-grid" id="album-grid"><div class="empty-state">Альбоми з'являться тут.</div></div>
+    </section>
+
+    <section class="wide-cta">
+      <div><div class="eyebrow">MORE THAN JUST MUSIC</div><h2>Твій звук.<br><span>Твоя хвиля.</span></h2><p>Залишайся на хвилі SoundVibe.</p></div>
+      <div class="cta-symbol">〰</div>
+    </section>
+
+    <section class="section posts-section" id="posts">
+      <div class="section-head"><div><h2>Дописи</h2></div></div>
+      <div class="post-grid" id="post-grid"><div class="empty-state">Поки немає дописів.</div></div>
+    </section>
+
+  </main>
+
+  <footer><a class="brand" href="#"><span class="brand-mark">S</span><span>Sound<span class="brand-light">Vibe</span></span></a><span>© <span id="year"></span> SoundVibe. Усі права захищені.</span><a href="#discover">На початок ↑</a></footer>
+
+  <div class="player" id="player">
+    <div class="player-track"><img id="player-cover" src="" alt=""><div><strong id="player-title">Обери свій трек</strong><small id="player-artist">SoundVibe</small></div></div>
+    <div class="player-center"><div class="player-controls"><button id="prev-track" aria-label="Попередній">|◀</button><button class="play-main" id="play-toggle" aria-label="Відтворити">▶</button><button id="next-track" aria-label="Наступний">▶|</button></div><div class="timeline"><span id="current-time">0:00</span><input type="range" id="seek" min="0" max="100" value="0"><span id="duration">0:00</span></div></div>
+    <div class="player-volume"><button id="mute-toggle" aria-label="Звук">◖))</button><input type="range" id="volume" min="0" max="1" step=".01" value=".8"></div>
+    <audio id="audio" preload="metadata"></audio>
+  </div>
+
+  <div class="modal" id="track-modal"><div class="modal-card track-detail"><button class="modal-close" data-close="track-modal">×</button><div id="track-detail-content"></div></div></div>
+
+  <div class="toast" id="toast"></div>
+  <script src="config.js"></script><script src="app.js"></script>
+</body>
+</html>
