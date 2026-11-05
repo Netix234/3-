@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090909">
   <title>SoundVibe — Feel the music</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,6 +20,9 @@
     </nav>
     <div class="header-actions">
       <button class="icon-btn" id="search-focus" aria-label="Пошук">⌕</button>
+      <button class="icon-btn fav-open" id="fav-open" aria-label="Обране"><span id="fav-glyph">♡</span><i class="fav-badge" id="fav-badge" hidden>0</i></button>
+      <button class="auth-btn" id="auth-open" type="button" aria-label="Увійти"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span class="auth-text">Увійти</span></button>
+      <button class="avatar-btn" id="account-open" type="button" aria-label="Мій профіль" hidden></button>
       <button class="mobile-menu" id="mobile-menu">☰</button>
     </div>
   </header>
@@ -70,6 +73,9 @@
     <div class="player-volume"><button id="mute-toggle" aria-label="Звук">◖))</button><input type="range" id="volume" min="0" max="1" step=".01" value=".8"></div>
     <audio id="audio" preload="metadata"></audio>
   </div>
+
+  <div class="modal" id="auth-modal"><div class="modal-card auth-card"><button class="modal-close" data-close="auth-modal" aria-label="Закрити">×</button><div id="auth-content"></div></div></div>
+  <div class="modal" id="me-modal"><div class="modal-card me-card"><button class="modal-close" data-close="me-modal" aria-label="Закрити">×</button><div id="me-content"></div></div></div>
 
   <div class="modal" id="track-modal"><div class="modal-card track-detail"><button class="modal-close" data-close="track-modal">×</button><div id="track-detail-content"></div></div></div>
 
