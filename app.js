@@ -155,12 +155,13 @@
 
     const isAllTracksPage=document.body.classList.contains("tracks-page");
     const isDesktop=window.matchMedia("(min-width: 701px)").matches;
+    const visibleLimit=isDesktop?8:6;
     const viewAll=$("#view-all-tracks");
     if(viewAll){
-      const show=viewAll && !isAllTracksPage && isDesktop && activeFilter==="all" && list.length>8;
+      const show=!isAllTracksPage && activeFilter==="all" && list.length>visibleLimit;
       viewAll.hidden=!show;
     }
-    if(!isAllTracksPage && isDesktop) list=list.slice(0,8);
+    if(!isAllTracksPage) list=list.slice(0,visibleLimit);
     $("#track-grid").innerHTML=list.length?list.map(trackCard).join(""):'<div class="empty-state">За цим запитом нічого не знайдено.</div>';
   }
 
