@@ -81,7 +81,7 @@
   document.head.appendChild(favStyle);
 
   const favBtn = (kind, id) => `<button class="fav-btn ${isFav(kind, id) ? "active" : ""}" data-fav-${kind === "tracks" ? "track" : "album"}="${id}" aria-label="В обране">${isFav(kind, id) ? "♥" : "♡"}</button>`;
-  const trackCard = t => `<article class="track-card">${favBtn("tracks", t.id)}<button class="cover-button" data-play="${t.id}" aria-label="Слухати ${esc(t.title)}"><img class="track-cover" src="${esc(t.cover_url||"")}" alt=""><span class="cover-play">▶</span></button><div class="track-info"><div><h3>${esc(t.title)}</h3><p>${esc(t.artist)}</p></div><button class="more-btn" data-detail="${t.id}" aria-label="Деталі">•••</button></div><div class="track-meta"><span>${t.is_featured?"✦ POPULAR":"SOUNDVIBE"} · <span class="listen-count" data-listens="${t.id}" title="Прослухали до кінця">♪ ${t.play_count||0}</span></span><button data-play="${t.id}">▶ СЛУХАТИ</button></div></article>`;
+  const trackCard = t => `<article class="track-card">${favBtn("tracks", t.id)}<button class="cover-button" data-play="${t.id}" aria-label="Слухати ${esc(t.title)}"><img class="track-cover" src="${esc(t.cover_url||"")}" alt=""><span class="cover-play">▶</span><span class="cover-expand" data-open-player="${t.id}" role="button" aria-label="Відкрити плеєр">⤢</span></button><div class="track-info"><div><h3><button class="track-title-open" data-open-player="${t.id}">${esc(t.title)}</button></h3><p>${esc(t.artist)}</p></div><button class="more-btn" data-detail="${t.id}" aria-label="Деталі">•••</button></div><div class="track-meta"><span>${t.is_featured?"✦ POPULAR":"SOUNDVIBE"} · <span class="listen-count" data-listens="${t.id}" title="Прослухали до кінця">♪ ${t.play_count||0}</span></span><button data-play="${t.id}">▶ СЛУХАТИ</button></div></article>`;
   const albumCard = a => `<article class="album-card">${favBtn("albums", a.id)}<img src="${esc(a.cover_url || "")}" alt=""><div class="album-overlay"><span>ALBUM</span><h3>${esc(a.title)}</h3><p>${esc(a.artist)}</p></div></article>`;
 
   function renderFavorites(){
@@ -152,6 +152,15 @@
     let list=tracks.filter(t=>(`${t.title} ${t.artist}`.toLowerCase().includes(q)));
     if(activeFilter==="new") list=list.slice(0,8);
     if(activeFilter==="popular") list=list.filter(t=>t.is_featured);
+
+    const isAllTracksPage=document.body.classList.contains("tracks-page");
+    const isDesktop=window.matchMedia("(min-width: 701px)").matches;
+    const viewAll=$("#view-all-tracks");
+    if(viewAll){
+      const show=viewAll && !isAllTracksPage && isDesktop && activeFilter==="all" && list.length>8;
+      viewAll.hidden=!show;
+    }
+    if(!isAllTracksPage && isDesktop) list=list.slice(0,8);
     $("#track-grid").innerHTML=list.length?list.map(trackCard).join(""):'<div class="empty-state">За цим запитом нічого не знайдено.</div>';
   }
 
@@ -185,13 +194,51 @@
     $("#player-title").textContent=t.title; $("#player-artist").textContent=t.artist;
     $("#player-cover").src=t.cover_url||""; $("#player").classList.add("visible"); $("#play-toggle").textContent="Ⅱ";
     resetListenTracking();
+    if($("#now-playing")?.classList.contains("open")) syncNowPlaying();
     if("mediaSession" in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.cover_url?[{src:t.cover_url}]:[]});}catch{}}
+  }
+
+  function openNowPlaying(id){
+    if(id && (tracks[currentIndex]?.id !== id || !audio.src)) playTrack(id);
+    const t=tracks[currentIndex];
+    if(!t) return;
+    const modal=$("#now-playing");
+    $("#np-cover").src=t.cover_url||"";
+    $("#np-title").textContent=t.title;
+    $("#np-artist").textContent=t.artist;
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden","false");
+    document.body.classList.add("now-playing-open");
+    syncNowPlaying();
+  }
+  function closeNowPlaying(){
+    const modal=$("#now-playing");
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden","true");
+    document.body.classList.remove("now-playing-open");
+  }
+  function syncNowPlaying(){
+    const t=tracks[currentIndex];
+    if(!t) return;
+    $("#np-cover").src=t.cover_url||"";
+    $("#np-title").textContent=t.title;
+    $("#np-artist").textContent=t.artist;
+    const playing=!audio.paused && !audio.ended;
+    $("#np-play").textContent=playing?"Ⅱ":"▶";
+    $("#np-play").setAttribute("aria-label",playing?"Пауза":"Відтворити");
+    $("#np-visualizer").classList.toggle("playing",playing);
+    $("#np-current").textContent=fmt(audio.currentTime);
+    $("#np-duration").textContent=fmt(audio.duration);
+    $("#np-seek").value=audio.duration?audio.currentTime/audio.duration*100:0;
+    $("#np-prev").disabled=currentIndex<=0;
+    $("#np-next").disabled=currentIndex>=tracks.length-1;
   }
 
   function syncPlaybackStatus(){
     const playing = !audio.paused && !audio.ended;
     $("#sound-status").textContent = playing ? "ON." : "OFF.";
     $("#play-toggle").textContent = playing ? "Ⅱ" : "▶";
+    if($("#now-playing")?.classList.contains("open")) syncNowPlaying();
   }
 
   function togglePlay(){if(!audio.src){if(tracks[0])playTrack(tracks[0].id);return;}if(audio.paused){audio.play().catch(()=>toast("Не вдалося відтворити аудіофайл."));}else{audio.pause();}}
@@ -251,22 +298,35 @@
     list.innerHTML=error?"Не вдалося завантажити відгуки.":data.length?data.map(r=>`<div class="review"><div><b>${esc(r.author_name)}</b><span>${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</span></div><p>${esc(r.body)}</p></div>`).join(""):'<p class="muted">Поки немає відгуків. Будь першим!</p>';
   }
 
+  document.addEventListener("keydown",e=>{
+    const playerTrack=e.target.closest(".player-track[data-open-player]");
+    if(playerTrack && (e.key==="Enter" || e.key===" ")){e.preventDefault();openNowPlaying();}
+  });
   document.addEventListener("click",e=>{
     const fT=e.target.closest("[data-fav-track]");if(fT){toggleFav("tracks",fT.dataset.favTrack);return;}
     const fA=e.target.closest("[data-fav-album]");if(fA){toggleFav("albums",fA.dataset.favAlbum);return;}
+    const np=e.target.closest("[data-open-player]");if(np){e.preventDefault();openNowPlaying(np.dataset.openPlayer);return;}
     const p=e.target.closest("[data-play]");if(p)playTrack(p.dataset.play);
     const d=e.target.closest("[data-detail]");if(d)detail(d.dataset.detail);
     const close=e.target.closest("[data-close]");if(close)closeModal($("#"+close.dataset.close));
   });
+  window.addEventListener("resize",renderTracks);
   $("#search").addEventListener("input",renderTracks);$("#search-focus").addEventListener("click",()=>{$("#search").focus();$("#tracks").scrollIntoView({behavior:"smooth"});});
   $$(".filter-chip").forEach(b=>b.addEventListener("click",()=>{$$(".filter-chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeFilter=b.dataset.filter;renderTracks();}));
   $("#play-toggle").addEventListener("click",togglePlay);$("#prev-track").addEventListener("click",()=>{if(currentIndex>0)playTrack(tracks[currentIndex-1].id);});$("#next-track").addEventListener("click",()=>{if(currentIndex<tracks.length-1)playTrack(tracks[currentIndex+1].id);});
   audio.addEventListener("play",syncPlaybackStatus);
   audio.addEventListener("pause",syncPlaybackStatus);
   audio.addEventListener("ended",syncPlaybackStatus);
-  audio.addEventListener("timeupdate",()=>{trackListening();$("#current-time").textContent=fmt(audio.currentTime);$("#duration").textContent=fmt(audio.duration);$("#seek").value=audio.duration?audio.currentTime/audio.duration*100:0;});
+  audio.addEventListener("timeupdate",()=>{trackListening();$("#current-time").textContent=fmt(audio.currentTime);$("#duration").textContent=fmt(audio.duration);$("#seek").value=audio.duration?audio.currentTime/audio.duration*100:0;if($("#now-playing")?.classList.contains("open"))syncNowPlaying();});
+  audio.addEventListener("loadedmetadata",syncNowPlaying);
   audio.addEventListener("ended",()=>{registerListen();if(currentIndex<tracks.length-1)playTrack(tracks[currentIndex+1].id);else syncPlaybackStatus();});
   $("#seek").addEventListener("input",e=>{if(audio.duration)audio.currentTime=audio.duration*e.target.value/100;});
+  $("#np-close").addEventListener("click",closeNowPlaying);
+  $("#np-play").addEventListener("click",togglePlay);
+  $("#np-prev").addEventListener("click",()=>{if(currentIndex>0)playTrack(tracks[currentIndex-1].id);});
+  $("#np-next").addEventListener("click",()=>{if(currentIndex<tracks.length-1)playTrack(tracks[currentIndex+1].id);});
+  $("#np-seek").addEventListener("input",e=>{if(audio.duration)audio.currentTime=audio.duration*e.target.value/100;});
+  $("#now-playing").addEventListener("click",e=>{if(e.target===$("#now-playing"))closeNowPlaying();});
   $("#volume").addEventListener("input",e=>audio.volume=Number(e.target.value));$("#mute-toggle").addEventListener("click",()=>{audio.muted=!audio.muted;$("#mute-toggle").textContent=audio.muted?"◖×)":"◖))";});
   // ===== Мобільне меню: закривається по кліку на пункт, поза меню, Esc і при поверненні до ПК-ширини =====
   const menuBtn=$("#mobile-menu"), mainNav=$(".main-nav");
@@ -275,7 +335,7 @@
   menuBtn.addEventListener("click",()=>setMenu(!mainNav.classList.contains("nav-open")));
   mainNav.addEventListener("click",e=>{if(e.target.closest("a"))setMenu(false);});
   document.addEventListener("click",e=>{if(mainNav.classList.contains("nav-open")&&!e.target.closest(".main-nav,#mobile-menu"))setMenu(false);});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false);});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){setMenu(false);closeNowPlaying();}});
   window.matchMedia("(min-width:701px)").addEventListener("change",e=>{if(e.matches)setMenu(false);});
   // На телефоні вікно треку закривається тапом по затемненню
   $("#track-modal").addEventListener("click",e=>{if(e.target.id==="track-modal"&&window.matchMedia("(max-width:700px)").matches)closeModal(e.target);});
