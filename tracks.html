@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090909">
+  <title>SoundVibe — Усі треки</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="tracks-page">
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">S</span><span>Sound<span class="brand-light">Vibe</span></span></a>
+    <nav class="main-nav">
+      <a href="index.html#discover">Головна</a><a href="index.html#tracks">Треки</a><a href="index.html#albums">Альбоми</a><a href="index.html#posts">Новини</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" id="search-focus" aria-label="Пошук">⌕</button>
+      <button class="icon-btn fav-open" id="fav-open" aria-label="Обране"><span id="fav-glyph">♡</span><i class="fav-badge" id="fav-badge" hidden>0</i></button>
+      <button class="auth-btn" id="auth-open" type="button" aria-label="Увійти"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span class="auth-text">Увійти</span></button>
+      <button class="avatar-btn" id="account-open" type="button" aria-label="Мій профіль" hidden></button>
+      <button class="mobile-menu" id="mobile-menu">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <span id="sound-status" hidden>OFF.</span>
+    <section class="section all-tracks-page-section" id="tracks">
+      <div class="section-head"><div><div class="eyebrow">SOUNDVIBE LIBRARY</div><h2>Усі треки<span>.</span></h2></div><div class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Знайти трек або виконавця..."></div></div>
+      <div class="filter-row"><button class="filter-chip active" data-filter="all">Усі треки</button><button class="filter-chip" data-filter="new">Новинки</button><button class="filter-chip" data-filter="popular">Популярні</button></div>
+      <div class="track-grid" id="track-grid"><div class="empty-state">Завантажуємо музику...</div></div>
+      <a class="back-home-tracks" href="index.html#tracks">← Повернутися на головну</a>
+    </section>
+  </main>
+
+  <footer><a class="brand" href="index.html"><span class="brand-mark">S</span><span>Sound<span class="brand-light">Vibe</span></span></a><span>© <span id="year"></span> SoundVibe. Усі права захищені.</span><a href="index.html#discover">На головну ↑</a></footer>
+
+  <div class="player" id="player">
+    <div class="player-track" data-open-player role="button" tabindex="0" aria-label="Відкрити повноекранний плеєр"><img id="player-cover" src="" alt=""><div><strong id="player-title">Обери свій трек</strong><small id="player-artist">SoundVibe</small></div></div>
+    <div class="player-center"><div class="player-controls"><button id="prev-track" aria-label="Попередній">|◀</button><button class="play-main" id="play-toggle" aria-label="Відтворити">▶</button><button id="next-track" aria-label="Наступний">▶|</button></div><div class="timeline"><span id="current-time">0:00</span><input type="range" id="seek" min="0" max="100" value="0"><span id="duration">0:00</span></div></div>
+    <div class="player-volume"><button id="mute-toggle" aria-label="Звук">◖))</button><input type="range" id="volume" min="0" max="1" step=".01" value=".8"></div>
+    <audio id="audio" preload="metadata"></audio>
+  </div>
+
+
+  <section class="now-playing" id="now-playing" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Плеєр SoundVibe">
+    <button class="np-close" id="np-close" aria-label="Закрити плеєр">×</button>
+    <div class="np-inner">
+      <div class="np-topline"><span class="np-brand-dot"></span> SOUNDVIBE <span class="np-top-caption">NOW PLAYING</span></div>
+      <div class="np-main">
+        <div class="np-art-wrap"><div class="np-art-glow"></div><img class="np-cover" id="np-cover" src="" alt="Обкладинка треку"></div>
+        <div class="np-details">
+          <div class="np-eyebrow">ТЕПЕР ГРАЄ</div>
+          <h2 id="np-title">Обери свій трек</h2>
+          <p id="np-artist">SoundVibe</p>
+          <div class="np-visualizer" id="np-visualizer" aria-label="Анімація еквалайзера"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="np-timeline"><span id="np-current">0:00</span><input type="range" id="np-seek" min="0" max="100" value="0" aria-label="Перемотка треку"><span id="np-duration">0:00</span></div>
+          <div class="np-controls"><button id="np-prev" aria-label="Попередній трек">|◀</button><button id="np-play" class="np-play" aria-label="Відтворити">▶</button><button id="np-next" aria-label="Наступний трек">▶|</button></div>
+          <div class="np-footer-note"><span class="np-live-dot"></span> FEEL EVERY BEAT</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal" id="auth-modal"><div class="modal-card auth-card"><button class="modal-close" data-close="auth-modal" aria-label="Закрити">×</button><div id="auth-content"></div></div></div>
+  <div class="modal" id="me-modal"><div class="modal-card me-card"><button class="modal-close" data-close="me-modal" aria-label="Закрити">×</button><div id="me-content"></div></div></div>
+
+  <div class="modal" id="track-modal"><div class="modal-card track-detail"><button class="modal-close" data-close="track-modal">×</button><div id="track-detail-content"></div></div></div>
+
+  <div class="toast" id="toast"></div>
+  <script src="config.js"></script><script src="app.js"></script>
+</body>
+</html>
